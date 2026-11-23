@@ -250,6 +250,61 @@
       box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
     }
 
+    /* Mobile Compact Top Bar Controls */
+    .mobile-nav-bar-actions {
+      display: none;
+    }
+    .btn-mobile-gas-pill {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+      border: 1px solid rgba(147, 197, 253, 0.5);
+      border-radius: 16px;
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .mobile-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid rgba(22, 163, 74, 0.4);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #86efac;
+      white-space: nowrap;
+    }
+    .mobile-status-pill.offline {
+      background: rgba(220, 38, 38, 0.25);
+      border-color: rgba(220, 38, 38, 0.4);
+      color: #fca5a5;
+    }
+    .btn-mobile-menu-toggle {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-mobile-menu-toggle:active {
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(0.95);
+    }
+
     /* Inside-module navigation header (replaces the cramped horizontal tabs) */
     .fluent-module-nav {
       display: flex;
@@ -777,22 +832,160 @@
       }
     }
     @media (max-width: 768px) {
-      .fluent-hero-card {
-        padding: 20px 16px;
+      /* 1. COMPACT STICKY NAVBAR (52px HEIGHT ONLY) */
+      .navbar {
+        padding: 6px 12px;
+        min-height: 52px;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        gap: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
       }
-      .hero-title {
-        font-size: 1.35rem;
+      .brand {
+        gap: 8px;
+        min-width: 0;
+        flex: 1;
       }
-      .hero-body {
-        gap: 16px;
+      .brand-logo {
+        font-size: 0.85rem;
+        padding: 4px 8px;
+        border-radius: 6px;
       }
-      .hero-quick-actions {
+      .brand-title {
+        font-size: 0.82rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+      }
+      .brand-subtitle {
+        display: none !important;
+      }
+      .mobile-nav-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      /* 2. TRANSFORM CROWDED NAV-CONTROLS INTO COMPACT SLIDE-DOWN DRAWER */
+      .nav-controls {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #0b2545;
+        border-bottom: 2px solid var(--color-teal);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        z-index: 1000;
+        animation: mobileNavSlideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-controls.drawer-open {
+        display: flex !important;
+      }
+      @keyframes mobileNavSlideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .nav-controls .btn-hub-nav,
+      .nav-controls .btn-gas-nav {
+        justify-content: center;
         width: 100%;
+        padding: 9px;
       }
-      .btn-hero-primary, .btn-hero-secondary {
+      .nav-controls .lang-switcher {
+        justify-content: center;
+        width: 100%;
+        padding: 5px;
+      }
+      .nav-controls .lang-btn {
         flex: 1;
         text-align: center;
+        padding: 6px 8px;
       }
+      .nav-controls .role-badge {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .nav-controls #networkStatusBadge {
+        display: none; /* Already shown in compact top bar */
+      }
+
+      /* 3. COMPACT HERO SECTION (REDUCE 70% HEIGHT) */
+      .fluent-hero-card {
+        padding: 12px 14px 14px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+      }
+      .hero-top-badges {
+        display: none !important;
+      }
+      .hero-body {
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-direction: column;
+      }
+      .hero-text-block {
+        min-width: unset;
+      }
+      .hero-title {
+        font-size: 1.05rem;
+        margin-bottom: 2px;
+        line-height: 1.25;
+      }
+      .hero-subtitle {
+        display: none !important;
+      }
+      .hero-quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+        margin-top: 4px;
+      }
+      .btn-hero-primary, .btn-hero-secondary {
+        padding: 8px 10px;
+        font-size: 0.78rem;
+        border-radius: 8px;
+        text-align: center;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      /* 4. 4 KPI CARDS: 2x2 GRID INSTEAD OF 4 STACKED FULL-WIDTH ROWS */
+      .hero-kpi-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px;
+        padding-top: 8px;
+        margin-top: 2px;
+      }
+      .kpi-box {
+        padding: 8px 10px;
+        border-radius: 8px;
+        gap: 8px;
+      }
+      .kpi-icon-wrap {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+      .kpi-value {
+        font-size: 0.95rem;
+      }
+      .kpi-label {
+        font-size: 0.65rem;
+        margin-top: 0;
+        line-height: 1.1;
+      }
+
       .fluent-workflow-bar {
         grid-template-columns: 1fr;
         gap: 8px;
@@ -1564,21 +1757,38 @@
   <!-- TOP NAVBAR WITH 3-LANGUAGE SWITCHER (VI - ZH - EN) -->
   <header class="navbar no-print">
     <div class="brand">
-      <div class="brand-logo">QC</div>
+      <div class="brand-logo" onclick="switchTab('landingPageSection')" style="cursor:pointer;" title="Về Trang Chủ">QC</div>
       <div>
-        <div class="brand-title" id="txtBrandTitle">GARMENT QC & TECHNICAL AUDIT</div>
+        <div class="brand-title" id="txtBrandTitle" onclick="switchTab('landingPageSection')" style="cursor:pointer;">GARMENT QC & TECHNICAL AUDIT</div>
         <span class="brand-subtitle" id="txtBrandSubtitle">Hệ Thống Kiểm Tra Chất Lượng & Báo Cáo Nghiệm Thu May Mặc</span>
       </div>
     </div>
 
-    <div class="nav-controls">
+    <!-- MOBILE COMPACT TOP BAR ACTIONS (<=768px ONLY) -->
+    <div class="mobile-nav-bar-actions">
+      <button type="button" class="btn-mobile-gas-pill" onclick="openGasModal()" title="Cấu hình Google Apps Script">
+        ⚙️ GAS
+      </button>
+
+      <div id="mobileNetworkStatusPill" class="mobile-status-pill" title="Trạng thái mạng" onclick="toggleMobileNavDrawer()">
+        <span class="status-dot"></span>
+        <span id="mobileNetworkStatusText">Online</span>
+      </div>
+
+      <button type="button" class="btn-mobile-menu-toggle" id="btnMobileMenuToggle" onclick="toggleMobileNavDrawer()" aria-label="Menu" title="Menu cài đặt & chuyển đổi">
+        ☰
+      </button>
+    </div>
+
+    <!-- NAV CONTROLS (DESKTOP: INLINE BAR; MOBILE: SLIDE-DOWN DRAWER) -->
+    <div class="nav-controls" id="navControlsDrawer">
       <!-- HUB NAVIGATION BUTTON (MICROSOFT FLUENT) -->
-      <button type="button" class="btn-hub-nav active" id="btnNavHub" onclick="switchTab('landingPageSection')" title="Quay về Trang Chủ / Return to Executive Hub">
+      <button type="button" class="btn-hub-nav active" id="btnNavHub" onclick="switchTab('landingPageSection'); closeMobileNavDrawer();" title="Quay về Trang Chủ / Return to Executive Hub">
         <span>🏠</span> <span id="txtNavHub">Trang Chủ (Hub)</span>
       </button>
 
       <!-- GOOGLE APPS SCRIPT CONFIG & CODE BUTTON -->
-      <button type="button" class="btn-gas-nav" id="btnNavGasConfig" onclick="openGasModal()" title="Cấu hình Webhook & Sao chép mã nguồn Google Apps Script Backend">
+      <button type="button" class="btn-gas-nav" id="btnNavGasConfig" onclick="openGasModal(); closeMobileNavDrawer();" title="Cấu hình Webhook & Sao chép mã nguồn Google Apps Script Backend">
         <span>⚙️</span> <span id="txtNavGasBtn">Cấu Hình & Mã Nguồn GAS</span>
       </button>
 
@@ -1596,7 +1806,7 @@
 
       <div class="role-badge">
         <span id="txtRoleLabel">Vai trò:</span>
-        <select id="userRoleSelect" class="role-select" onchange="handleRoleChange()">
+        <select id="userRoleSelect" class="role-select" onchange="handleRoleChange(); closeMobileNavDrawer();">
           <option value="QC_LEADER" selected id="optRoleLeader">QC Leader / Admin</option>
           <option value="INSPECTOR" id="optRoleInspector">Inspector (Thực Địa)</option>
           <option value="FACTORY" id="optRoleFactory">Nhà Máy (Factory)</option>
@@ -1661,7 +1871,12 @@
         
         <div class="hero-body">
           <div class="hero-text-block">
-            <h1 class="hero-title" id="txtLandingHeroTitle">CỔNG ĐIỀU HÀNH CHẤT LƯỢNG & ĐÁNH GIÁ KỸ THUẬT MAY MẶC</h1>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h1 class="hero-title" id="txtLandingHeroTitle">CỔNG ĐIỀU HÀNH CHẤT LƯỢNG & ĐÁNH GIÁ KỸ THUẬT MAY MẶC</h1>
+              <button type="button" id="btnToggleHeroKpi" onclick="toggleHeroKpiSection()" style="background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#ffffff; border-radius:12px; padding:3px 9px; font-size:0.72rem; font-weight:700; cursor:pointer; white-space:nowrap; margin-left:8px;" title="Thu gọn / Mở rộng thống kê">
+                ▲ Thu gọn KPI
+              </button>
+            </div>
             <p class="hero-subtitle" id="txtLandingHeroSubtitle">
               Nền tảng quản trị kiểm định tập trung: Nạp đơn hàng thông minh, lập lịch phân công AQL, thao tác thực địa ngoại tuyến, duyệt báo cáo song ngữ và bàn giao cơ sở dữ liệu độc lập.
             </p>
@@ -6003,18 +6218,62 @@
       showAlert(currentAppLang === 'vi' ? `Đã gửi email thông báo và liên kết thực địa cho Inspector phụ trách ${code}!` : (currentAppLang === 'zh' ? `已成功向质检员发送 ${code} 任务邮件与现场链接！` : `Assigned inspector and emailed link for ${code}!`), 'success');
     }
 
+    // MOBILE DRAWER & COMPACT CONTROLS
+    function toggleMobileNavDrawer() {
+      const drawer = document.getElementById('navControlsDrawer');
+      const btn = document.getElementById('btnMobileMenuToggle');
+      if (!drawer) return;
+      const isOpen = drawer.classList.toggle('drawer-open');
+      if (btn) btn.innerHTML = isOpen ? '✕' : '☰';
+    }
+
+    function closeMobileNavDrawer() {
+      const drawer = document.getElementById('navControlsDrawer');
+      const btn = document.getElementById('btnMobileMenuToggle');
+      if (drawer && drawer.classList.contains('drawer-open')) {
+        drawer.classList.remove('drawer-open');
+        if (btn) btn.innerHTML = '☰';
+      }
+    }
+
+    function toggleHeroKpiSection() {
+      const grid = document.querySelector('.hero-kpi-grid');
+      const btn = document.getElementById('btnToggleHeroKpi');
+      if (!grid) return;
+      const isHidden = grid.style.display === 'none';
+      grid.style.display = isHidden ? 'grid' : 'none';
+      if (btn) btn.textContent = isHidden ? '▲ Thu gọn KPI' : '▼ Hiện KPI';
+    }
+
+    // Auto-close drawer when clicking anywhere outside
+    document.addEventListener('click', (e) => {
+      const drawer = document.getElementById('navControlsDrawer');
+      const btn = document.getElementById('btnMobileMenuToggle');
+      if (drawer && drawer.classList.contains('drawer-open')) {
+        if (!drawer.contains(e.target) && !btn.contains(e.target)) {
+          closeMobileNavDrawer();
+        }
+      }
+    });
+
     // ONLINE / OFFLINE STATUS DETECTOR & AUTO-BADGE SYNC
     function updateNetworkStatus() {
       const badge = document.getElementById('networkStatusBadge');
       const text = document.getElementById('networkStatusText');
-      if (!badge || !text) return;
+      const mobPill = document.getElementById('mobileNetworkStatusPill');
+      const mobText = document.getElementById('mobileNetworkStatusText');
       const t = I18N[currentAppLang] || I18N['vi'];
+
       if (navigator.onLine) {
-        badge.className = 'status-pill';
-        text.textContent = t.netOnline || 'ONLINE (IndexedDB Sẵn Sàng)';
+        if (badge) badge.className = 'status-pill';
+        if (text) text.textContent = t.netOnline || 'ONLINE (IndexedDB Sẵn Sàng)';
+        if (mobPill) mobPill.className = 'mobile-status-pill';
+        if (mobText) mobText.textContent = 'Online';
       } else {
-        badge.className = 'status-pill offline';
-        text.textContent = t.netOffline || 'OFFLINE (Lưu Cục Bộ IndexedDB)';
+        if (badge) badge.className = 'status-pill offline';
+        if (text) text.textContent = t.netOffline || 'OFFLINE (Lưu Cục Bộ IndexedDB)';
+        if (mobPill) mobPill.className = 'mobile-status-pill offline';
+        if (mobText) mobText.textContent = 'Offline';
       }
     }
     window.addEventListener('online', () => {
@@ -6044,6 +6303,7 @@
 
       setAppLanguage(currentAppLang);
       updateSyncBadge();
+      updateNetworkStatus();
       renderBookingListTable();
       renderUploadTable();
       renderRecapTable(currentRecapList);
