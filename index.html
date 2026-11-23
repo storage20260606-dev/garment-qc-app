@@ -1546,37 +1546,49 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 42, 68, 0.85);
-      z-index: 300;
+      background: rgba(11, 37, 69, 0.94);
+      z-index: 2000;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 16px;
+      justify-content: flex-start;
+      padding: 10px;
+      backdrop-filter: blur(8px);
+      touch-action: none;
+      overflow-y: auto;
     }
     .annotator-toolbar {
       display: flex;
-      gap: 10px;
+      gap: 6px;
       background: #ffffff;
-      padding: 10px 16px;
+      padding: 8px 12px;
       border-radius: var(--radius);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       align-items: center;
       flex-wrap: wrap;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
     .canvas-container {
-      max-width: 90vw;
-      max-height: 75vh;
-      background: #000;
+      max-width: 96vw;
+      max-height: calc(100vh - 120px);
+      background: #0f172a;
       border-radius: var(--radius);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.15);
+      position: relative;
     }
     canvas {
       max-width: 100%;
-      max-height: 75vh;
+      max-height: calc(100vh - 120px);
       touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: crosshair;
     }
 
     @media print {
@@ -3289,14 +3301,17 @@
   <!-- MODAL CANVAS ANNOTATION -->
   <div id="annotationModal">
     <div class="annotator-toolbar">
-      <span style="font-weight:700; color:var(--color-navy); margin-right:8px;" id="txtAnnotTitle">Vẽ Khoanh Vùng Lỗi:</span>
-      <button type="button" class="btn btn-outline btn-sm" onclick="activeTool='CIRCLE'" id="btnToolCircle">&#11093; Vòng Tròn Đỏ</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="activeTool='ARROW'" id="btnToolArrow">&rarr; Mũi Tên Chỉ Lỗi</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="canvasShapes.pop(); redrawCanvas();" id="btnToolUndo">Hoàn Tác (Undo)</button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="canvasShapes=[]; redrawCanvas();" id="btnToolClear">Xóa Hết</button>
-      <div style="flex:1;"></div>
-      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('annotationModal').style.display='none'" id="btnToolClose">Đóng</button>
-      <button type="button" class="btn btn-teal btn-sm" onclick="saveAnnotation()" id="btnToolSave">Lưu Ảnh Đã Khoanh Lỗi</button>
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1;">
+        <span style="font-weight:700; color:var(--color-navy); font-size:0.85rem;" id="txtAnnotTitle">Vẽ Khoanh Lỗi:</span>
+        <button type="button" class="btn btn-sm active" onclick="selectAnnotTool('CIRCLE')" id="btnToolCircle" style="background:#dc2626; color:#ffffff; border-color:#dc2626; font-weight:700;">&#11093; Vòng Tròn Đỏ</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="selectAnnotTool('ARROW')" id="btnToolArrow">&rarr; Mũi Tên Chỉ Lỗi</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="handleAnnotUndo()" id="btnToolUndo">↩ Hoàn Tác (<span id="txtShapeCount">0</span>)</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="handleAnnotClear()" id="btnToolClear">🗑️ Xóa Hết</button>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; margin-left:auto;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeAnnotatorModal()" id="btnToolClose">✕ Đóng</button>
+        <button type="button" class="btn btn-teal btn-sm" onclick="saveAnnotation()" id="btnToolSave" style="font-weight:700;">💾 Lưu Ảnh Đã Khoanh Lỗi</button>
+      </div>
     </div>
     <div class="canvas-container"><canvas id="annotationCanvas"></canvas></div>
   </div>
@@ -5984,34 +5999,135 @@
       setTimeout(() => switchTab('reportReviewTab'), 1200);
     }
 
-    // CANVAS DEFECT ANNOTATION ENGINE
+    // =========================================================================
+    // CANVAS DEFECT ANNOTATION ENGINE (TOUCH & MOUSE FOR MOBILE & DESKTOP)
+    // =========================================================================
     const canvas = document.getElementById('annotationCanvas');
     const ctx = canvas.getContext('2d');
-    let currentImg = null, canvasShapes = [], isDrawing = false, activeTool = 'CIRCLE', startX = 0, startY = 0;
+    let currentImg = null;
+    let canvasShapes = [];
+    let isDrawing = false;
+    let activeTool = 'CIRCLE';
+    let startX = 0;
+    let startY = 0;
+    currentTargetImgId = null;
+
+    function selectAnnotTool(tool) {
+      activeTool = tool;
+      const btnCircle = document.getElementById('btnToolCircle');
+      const btnArrow = document.getElementById('btnToolArrow');
+      if (btnCircle) {
+        if (tool === 'CIRCLE') {
+          btnCircle.classList.add('active');
+          btnCircle.style.background = '#dc2626';
+          btnCircle.style.color = '#ffffff';
+          btnCircle.style.borderColor = '#dc2626';
+        } else {
+          btnCircle.classList.remove('active');
+          btnCircle.style.background = '#ffffff';
+          btnCircle.style.color = 'var(--color-navy)';
+          btnCircle.style.borderColor = '#cbd5e1';
+        }
+      }
+      if (btnArrow) {
+        if (tool === 'ARROW') {
+          btnArrow.classList.add('active');
+          btnArrow.style.background = '#dc2626';
+          btnArrow.style.color = '#ffffff';
+          btnArrow.style.borderColor = '#dc2626';
+        } else {
+          btnArrow.classList.remove('active');
+          btnArrow.style.background = '#ffffff';
+          btnArrow.style.color = 'var(--color-navy)';
+          btnArrow.style.borderColor = '#cbd5e1';
+        }
+      }
+      showAlert(tool === 'CIRCLE' ? 'Đang chọn: ⭕ Vòng Tròn Đỏ (chạm và kéo ngón tay trên ảnh để vẽ)' : 'Đang chọn: ➔ Mũi Tên Chỉ Lỗi (chạm và kéo ngón tay để chỉ vị trí lỗi)', 'info');
+    }
+
+    function updateShapeCountBadge() {
+      const el = document.getElementById('txtShapeCount');
+      if (el) el.textContent = canvasShapes.length;
+    }
+
+    function handleAnnotUndo() {
+      if (canvasShapes.length === 0) {
+        showAlert('Chưa có nét vẽ nào để hoàn tác!', 'warning');
+        return;
+      }
+      canvasShapes.pop();
+      updateShapeCountBadge();
+      redrawCanvas();
+      showAlert('Đã hoàn tác 1 nét vẽ!', 'info');
+    }
+
+    function handleAnnotClear() {
+      if (canvasShapes.length === 0) return;
+      canvasShapes = [];
+      updateShapeCountBadge();
+      redrawCanvas();
+      showAlert('Đã xóa tất cả nét vẽ trên ảnh!', 'info');
+    }
+
+    function closeAnnotatorModal() {
+      document.getElementById('annotationModal').style.display = 'none';
+    }
 
     function openAnnotator(imgId) {
       currentTargetImgId = imgId;
       const srcImg = document.getElementById(imgId);
+      if (!srcImg || !srcImg.src) {
+        showAlert('Chưa có ảnh để khoanh lỗi! Vui lòng bấm [📷 Chụp / Tải Ảnh] trước.', 'warning');
+        return;
+      }
+
       currentImg = new Image();
+      currentImg.crossOrigin = 'anonymous';
       currentImg.onload = () => {
-        canvas.width = currentImg.naturalWidth || 800;
-        canvas.height = currentImg.naturalHeight || 520;
+        // Normalize resolution: cap max dimension at 1280px to avoid memory exhaustion & tiny lines
+        const MAX_DIM = 1280;
+        let w = currentImg.naturalWidth || 800;
+        let h = currentImg.naturalHeight || 600;
+        if (w > MAX_DIM || h > MAX_DIM) {
+          if (w >= h) {
+            h = Math.round((h * MAX_DIM) / w);
+            w = MAX_DIM;
+          } else {
+            w = Math.round((w * MAX_DIM) / h);
+            h = MAX_DIM;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
         canvasShapes = [];
+        updateShapeCountBadge();
+        selectAnnotTool('CIRCLE');
         redrawCanvas();
         document.getElementById('annotationModal').style.display = 'flex';
+        showAlert('Dùng ngón tay CHẠM và KÉO trên ảnh để khoanh tròn vị trí lỗi!', 'info');
       };
       currentImg.src = srcImg.src;
     }
 
+    function getCanvasStrokeWidth() {
+      // Dynamic bold line width proportional to canvas dimensions
+      return Math.max(5, Math.round(canvas.width / 110));
+    }
+
     function redrawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (currentImg) ctx.drawImage(currentImg, 0, 0, canvas.width, canvas.height);
+      if (currentImg) {
+        ctx.drawImage(currentImg, 0, 0, canvas.width, canvas.height);
+      }
+      const strokeW = getCanvasStrokeWidth();
       ctx.strokeStyle = '#DC2626';
       ctx.fillStyle = '#DC2626';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = strokeW;
+
       canvasShapes.forEach(s => {
         if (s.tool === 'CIRCLE') {
-          const rx = Math.abs(s.endX - s.startX) / 2, ry = Math.abs(s.endY - s.startY) / 2;
+          const rx = Math.abs(s.endX - s.startX) / 2;
+          const ry = Math.abs(s.endY - s.startY) / 2;
           ctx.beginPath();
           ctx.ellipse(Math.min(s.startX, s.endX) + rx, Math.min(s.startY, s.endY) + ry, rx, ry, 0, 0, Math.PI * 2);
           ctx.stroke();
@@ -6022,52 +6138,116 @@
     }
 
     function drawArrow(fromX, fromY, toX, toY) {
-      const headlen = 16, angle = Math.atan2(toY - fromY, toX - fromX);
-      ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(toX, toY);
+      const headlen = Math.max(18, Math.round(canvas.width / 40));
+      const angle = Math.atan2(toY - fromY, toX - fromX);
+
+      ctx.beginPath();
+      ctx.moveTo(fromX, fromY);
+      ctx.lineTo(toX, toY);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(toX, toY);
       ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
       ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
-      ctx.closePath(); ctx.fill();
+      ctx.closePath();
+      ctx.fill();
     }
 
     function getCoords(e) {
       const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      }
+
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
     }
 
-    canvas.addEventListener('mousedown', (e) => { isDrawing = true; const pos = getCoords(e); startX = pos.x; startY = pos.y; });
-    canvas.addEventListener('mousemove', (e) => {
+    // DRAWING EVENT HANDLERS (MOUSE & TOUCH SUPPORT)
+    function onDrawStart(e) {
+      if (e.type.startsWith('touch')) {
+        e.preventDefault();
+      }
+      isDrawing = true;
+      const pos = getCoords(e);
+      startX = pos.x;
+      startY = pos.y;
+    }
+
+    function onDrawMove(e) {
       if (!isDrawing) return;
+      if (e.type.startsWith('touch')) {
+        e.preventDefault();
+      }
       const pos = getCoords(e);
       redrawCanvas();
-      ctx.strokeStyle = '#DC2626'; ctx.fillStyle = '#DC2626'; ctx.lineWidth = 4;
+      const strokeW = getCanvasStrokeWidth();
+      ctx.strokeStyle = '#DC2626';
+      ctx.fillStyle = '#DC2626';
+      ctx.lineWidth = strokeW;
+
       if (activeTool === 'CIRCLE') {
-        const rx = Math.abs(pos.x - startX) / 2, ry = Math.abs(pos.y - startY) / 2;
-        ctx.beginPath(); ctx.ellipse(Math.min(startX, pos.x) + rx, Math.min(startY, pos.y) + ry, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
-      } else { drawArrow(startX, startY, pos.x, pos.y); }
-    });
-    window.addEventListener('mouseup', (e) => {
+        const rx = Math.abs(pos.x - startX) / 2;
+        const ry = Math.abs(pos.y - startY) / 2;
+        ctx.beginPath();
+        ctx.ellipse(Math.min(startX, pos.x) + rx, Math.min(startY, pos.y) + ry, rx, ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        drawArrow(startX, startY, pos.x, pos.y);
+      }
+    }
+
+    function onDrawEnd(e) {
       if (!isDrawing) return;
+      if (e.type.startsWith('touch')) {
+        e.preventDefault();
+      }
       isDrawing = false;
       const pos = getCoords(e);
-      canvasShapes.push({ tool: activeTool, startX, startY, endX: pos.x, endY: pos.y });
+      const dist = Math.hypot(pos.x - startX, pos.y - startY);
+      // Only record shape if user actually dragged more than 6px
+      if (dist > 6) {
+        canvasShapes.push({ tool: activeTool, startX, startY, endX: pos.x, endY: pos.y });
+        updateShapeCountBadge();
+      }
       redrawCanvas();
-    });
+    }
+
+    // Attach Mouse events
+    canvas.addEventListener('mousedown', onDrawStart);
+    canvas.addEventListener('mousemove', onDrawMove);
+    window.addEventListener('mouseup', onDrawEnd);
+
+    // Attach Touch events with passive: false to allow e.preventDefault()
+    canvas.addEventListener('touchstart', onDrawStart, { passive: false });
+    canvas.addEventListener('touchmove', onDrawMove, { passive: false });
+    window.addEventListener('touchend', onDrawEnd, { passive: false });
+    canvas.addEventListener('touchcancel', () => { isDrawing = false; });
 
     function saveAnnotation() {
       if (currentTargetImgId) {
         const annotatedData = canvas.toDataURL('image/jpeg', 0.95);
-        document.getElementById(currentTargetImgId).src = annotatedData;
+        const targetImg = document.getElementById(currentTargetImgId);
+        if (targetImg) targetImg.src = annotatedData;
         // Sync to report photo
         const num = currentTargetImgId.replace('img_p', '');
         const repImg = document.getElementById(`repPhoto${num}`);
         if (repImg) repImg.src = annotatedData;
       }
-      document.getElementById('annotationModal').style.display = 'none';
-      showAlert(currentAppLang === 'vi' ? 'Đã lưu ảnh khoanh vùng lỗi vào bộ nhớ cục bộ!' : (currentAppLang === 'zh' ? '已保存标注图片至本地缓存！' : 'Saved annotated defect image!'), 'success');
+      closeAnnotatorModal();
+      showAlert(currentAppLang === 'vi' ? '🎉 Đã lưu ảnh khoanh vùng lỗi vào hồ sơ nghiệm thu!' : (currentAppLang === 'zh' ? '已成功保存标注缺陷图片！' : 'Successfully saved annotated defect image!'), 'success');
     }
 
     function setSealView(name) {
