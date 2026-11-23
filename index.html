@@ -1499,6 +1499,12 @@
       border-radius: 6px;
       overflow: hidden;
       background: #fff;
+      display: flex;
+      flex-direction: column;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      break-inside: avoid-page;
+      -webkit-column-break-inside: avoid;
     }
     .a4-photo-item img {
       width: 100%;
@@ -1591,12 +1597,105 @@
       cursor: crosshair;
     }
 
+    @page {
+      size: A4 portrait;
+      margin: 10mm 8mm;
+    }
+
     @media print {
-      body { background: #fff !important; padding: 0 !important; }
-      .navbar, .nav-tabs, .no-print, .btn, .nav-controls, .card.no-print { display: none !important; }
-      .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-      .a4-preview-wrapper { background: #fff !important; padding: 0 !important; }
-      .a4-sheet { box-shadow: none !important; max-width: 100% !important; padding: 0 !important; }
+      *, *:before, *:after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        color: #1e293b !important;
+      }
+      .navbar, .nav-tabs, .no-print, .btn, .nav-controls, .card.no-print,
+      #dynamicDefectFileInput, #dynamicDefectReuploadInput,
+      #emptyReportOverviewState, #emptyReportDefectState,
+      .mobile-nav-drawer, .toast, .drawer-overlay {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .a4-preview-wrapper {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .a4-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* PREVENT CUTTING IN HALF ACROSS PAGES (ANTI-SLICING) */
+      .a4-photo-item,
+      .photo-card,
+      .report-section,
+      .report-section-title,
+      .a4-header,
+      .counter-row,
+      .table-responsive,
+      table,
+      thead,
+      tbody,
+      tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+        -webkit-column-break-inside: avoid !important;
+      }
+
+      .a4-photo-grid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        page-break-inside: auto !important;
+      }
+
+      .a4-photo-item {
+        flex: 0 0 calc(33.333% - 8px) !important;
+        max-width: calc(33.333% - 8px) !important;
+        box-sizing: border-box !important;
+        margin-bottom: 10px !important;
+        border: 1px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+      }
+
+      .a4-photo-item img {
+        height: 125px !important;
+        max-height: 125px !important;
+        object-fit: contain !important;
+        background: #1e293b !important;
+      }
+
+      .a4-photo-desc {
+        padding: 5px 6px !important;
+        font-size: 8pt !important;
+        line-height: 1.25 !important;
+        background: #ffffff !important;
+      }
+
+      .a4-photo-desc .drive-link {
+        display: none !important;
+      }
     }
   
     /* --- TECHNICAL AUDIT STYLES --- */
@@ -2527,7 +2626,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle1">1. Bảng Màu (Color Palette)</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p1" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p1" src="" onerror="handleImgFallback(this, 'svgColorSwatches')">
@@ -2543,7 +2642,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle2">2. Mẫu Seal (4 Góc)</span>
-                <span class="badge badge-code" id="sealViewText">Trước</span>
+                <span class="badge" id="badge_p2" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="seal-views">
                 <button type="button" class="seal-btn active" onclick="setSealView('Trước')">Trước</button>
@@ -2565,7 +2664,7 @@
             <div class="photo-card" style="border: 2px solid var(--color-teal); background:#f0fdfa;">
               <div class="photo-card-title">
                 <span id="pTitle3">3. Sản Phẩm Hoàn Thiện (Ảnh Tổng Quan)</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p3" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p3" src="" onerror="handleImgFallback(this, 'svgFinishedGarment')">
@@ -2582,7 +2681,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle4">4. Nhãn Mác & Mã Vạch</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p4" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p4" src="" onerror="handleImgFallback(this, 'svgCareLabel')">
@@ -2598,7 +2697,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle5">5. Thẻ Bài (Hangtag)</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p5" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p5" src="" onerror="handleImgFallback(this, 'svgHangtag')">
@@ -2614,7 +2713,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle6">6. Thẻ Giá (Price Ticket)</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p6" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p6" src="" onerror="handleImgFallback(this, 'svgPriceTag')">
@@ -2630,7 +2729,7 @@
             <div class="photo-card">
               <div class="photo-card-title">
                 <span id="pTitle7">7. Thùng Đóng Gói (Carton)</span>
-                <span class="badge badge-pass">&#10003; Đã Kiểm</span>
+                <span class="badge" id="badge_p7" style="background:#f1f5f9; color:#64748b;">(Chưa chụp)</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p7" src="" onerror="handleImgFallback(this, 'svgPackaging')">
@@ -2663,9 +2762,6 @@
                 <span id="badgeDefectCount" class="badge" style="background:#eff6ff; color:#1d4ed8; font-weight:700; font-size:0.85rem;">0 ảnh lỗi</span>
                 <button type="button" class="btn btn-teal btn-sm" onclick="triggerAddNewDefectPhoto()" style="font-weight:700;">
                   ➕ Chụp Thêm Ảnh Lỗi Mới
-                </button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="loadSampleDefectPhotos()" style="font-size:0.75rem;" title="Nạp nhanh ảnh lỗi mẫu để xem demo">
-                  ↻ Mẫu Lỗi Demo
                 </button>
               </div>
             </div>
@@ -2936,69 +3032,25 @@
                 </a>
               </div>
             </div>
-            <div class="a4-photo-grid">
-              <div class="a4-photo-item">
-                <img id="repPhoto1" src="" onerror="handleImgFallback(this, 'svgColorSwatches')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc1">1. Bảng Màu (Color Palette)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive1">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto2" src="" onerror="handleImgFallback(this, 'svgSealSample')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc2">2. Mẫu Seal (4 Góc)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive2">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto3" src="" onerror="handleImgFallback(this, 'svgFinishedGarment')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc3">3. Sản Phẩm Hoàn Thiện (Tổng Quan)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive3">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto4" src="" onerror="handleImgFallback(this, 'svgCareLabel')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc4">4. Nhãn Mác (Care/Main)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive4">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto5" src="" onerror="handleImgFallback(this, 'svgHangtag')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc5">5. Thẻ Bài (Hangtag)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive5">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto6" src="" onerror="handleImgFallback(this, 'svgPriceTag')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc6">6. Thẻ Giá (Price Tag)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive6">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
-              <div class="a4-photo-item">
-                <img id="repPhoto7" src="" onerror="handleImgFallback(this, 'svgPackaging')">
-                <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc7">7. Thùng Đóng Gói (Carton)</strong>
-                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive7">[Xem ảnh gốc Drive]</a>
-                </div>
-              </div>
+            <!-- Lưới hiển thị DUY NHẤT các ảnh thực tế được chụp/tải lên (ẨN TOÀN BỘ ẢNH MÔ PHỎNG DEMO) -->
+            <div id="reportOverviewPhotosGrid" class="a4-photo-grid">
+              <!-- Render động chỉ các ảnh thực tế do Inspector upload -->
+            </div>
+            <div id="emptyReportOverviewState" style="text-align:center; padding:14px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:6px; font-size:0.82rem; color:#64748b; margin-top:4px;">
+              🔍 Chưa có ảnh tổng thể thực tế nào được tải lên từ hiện trường. (Các ảnh mẫu mô phỏng đã được tự động ẩn khỏi báo cáo chính thức).
             </div>
 
             <!-- MỤC 3.2: DANH MỤC ẢNH LỖI CẬN CẢNH (DEFECT EVIDENCE CLOSE-UP - N LỖI) -->
             <div style="margin-top: 14px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
-                <strong style="color:var(--color-navy); font-size:0.88rem;">3.2. Danh Mục Bằng Chứng Ảnh Lỗi Chi Tiết (Defect Evidence Gallery - N Lỗi)</strong>
+                <strong style="color:var(--color-navy); font-size:0.88rem;">3.2. Danh Mục Bằng Chứng Ảnh Lỗi Chi Tiết (Defect Evidence Gallery - N Lỗi Thực Tế)</strong>
                 <span id="repDefectCountBadge" class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700;">0 Lỗi Đã Ghi Nhận</span>
               </div>
-              <div id="reportDefectGrid" class="a4-photo-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+              <div id="reportDefectGrid" class="a4-photo-grid">
                 <!-- Dynamic Defect Photos Rendered into Report -->
               </div>
-              <div id="emptyReportDefectState" style="text-align:center; padding:12px; background:#f9fafb; border:1px dashed #d1d5db; border-radius:6px; font-size:0.8rem; color:#6b7280;">
-                Không phát hiện lỗi ngoại quan cần lưu ảnh cận cảnh (Hoặc chưa chụp ảnh lỗi chi tiết).
+              <div id="emptyReportDefectState" style="text-align:center; padding:14px; background:#f9fafb; border:1px dashed #d1d5db; border-radius:6px; font-size:0.8rem; color:#6b7280; margin-top:4px;">
+                Không có ảnh lỗi thực tế nào ghi nhận từ hiện trường.
               </div>
             </div>
           </div>
@@ -4072,7 +4124,29 @@
       }
     }
 
-    // PHOTO UPLOAD WITH LIVE PREVIEW & DRIVE SYNC EMULATION
+    // =========================================================================
+    // FIELD INSPECTOR REAL PHOTO STORE (ONLY REAL PHOTOS RENDER IN REPORT)
+    // =========================================================================
+    let realOverviewPhotos = {
+      p1: null,
+      p2: null,
+      p3: null,
+      p4: null,
+      p5: null,
+      p6: null,
+      p7: null
+    };
+
+    const OVERVIEW_PHOTO_META = {
+      p1: { num: 1, title: '1. Bảng Màu (Color Palette)', driveId: 'linkDrive1' },
+      p2: { num: 2, title: '2. Mẫu Seal (4 Góc)', driveId: 'linkDrive2' },
+      p3: { num: 3, title: '3. Sản Phẩm Hoàn Thiện', driveId: 'linkDrive3' },
+      p4: { num: 4, title: '4. Nhãn Mác (Care/Main)', driveId: 'linkDrive4' },
+      p5: { num: 5, title: '5. Thẻ Bài (Hangtag)', driveId: 'linkDrive5' },
+      p6: { num: 6, title: '6. Thẻ Giá (Price Tag)', driveId: 'linkDrive6' },
+      p7: { num: 7, title: '7. Thùng Đóng Gói (Carton)', driveId: 'linkDrive7' }
+    };
+
     function handlePhotoUpload(input, targetImgId, reportImgId) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -4081,13 +4155,60 @@
           if (document.getElementById(targetImgId)) {
             document.getElementById(targetImgId).src = dataUrl;
           }
-          if (reportImgId && document.getElementById(reportImgId)) {
-            document.getElementById(reportImgId).src = dataUrl;
+          const key = targetImgId.replace('img_', '');
+          realOverviewPhotos[key] = dataUrl;
+
+          // Update badge in step 3
+          const badgeEl = document.getElementById('badge_' + key);
+          if (badgeEl) {
+            badgeEl.textContent = '✓ Ảnh Thực Tế';
+            badgeEl.className = 'badge badge-pass';
           }
+
+          syncOverviewPhotosToReport();
           showAlert(currentAppLang === 'vi' ? 'Đã tải ảnh thực tế thành công! Đang lưu bộ nhớ IndexedDB...' : (currentAppLang === 'zh' ? '照片上传成功！已存入本地 IndexedDB...' : 'Photo uploaded successfully! Saved to IndexedDB...'), 'success');
         };
         reader.readAsDataURL(input.files[0]);
       }
+    }
+
+    function syncOverviewPhotosToReport() {
+      const grid = document.getElementById('reportOverviewPhotosGrid');
+      const emptyState = document.getElementById('emptyReportOverviewState');
+      if (!grid) return;
+
+      // Filter ONLY keys that have REAL photo uploaded (not null, not SVG mock)
+      const uploadedKeys = Object.keys(realOverviewPhotos).filter(k => {
+        const val = realOverviewPhotos[k];
+        return val && typeof val === 'string' && !val.includes('<svg') && !val.startsWith('data:image/svg');
+      });
+
+      if (uploadedKeys.length === 0) {
+        grid.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = 'none';
+
+      grid.innerHTML = uploadedKeys.map(k => {
+        const info = OVERVIEW_PHOTO_META[k];
+        const dataUrl = realOverviewPhotos[k];
+        return `
+          <div class="a4-photo-item" id="repItem_${k}" style="border: 1px solid var(--color-warm-sand); background:#ffffff;">
+            <div style="background:#1e293b; height:140px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+              <img src="${dataUrl}" style="max-height:100%; max-width:100%; object-fit:contain;" alt="${escapeHtml(info.title)}">
+            </div>
+            <div class="a4-photo-desc" style="padding:6px 8px; font-size:0.75rem; line-height:1.3;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <strong style="color:var(--color-navy);">${escapeHtml(info.title)}</strong>
+                <span class="badge badge-pass" style="font-size:0.65rem; padding:1px 4px;">✓ Ảnh Thực Tế</span>
+              </div>
+              <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" style="color:var(--color-teal); font-size:0.7rem;">[Xem ảnh gốc Drive]</a>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // DỮ LIỆU RECAP MẪU
@@ -6086,8 +6207,10 @@
     }
 
     function submitFieldInspection() {
+      syncOverviewPhotosToReport();
       syncDynamicDefectsToReport();
-      showAlert(currentAppLang === 'vi' ? `Báo cáo thực địa và ${dynamicDefects.length} ảnh lỗi đã lưu thành công vào IndexedDB! Kết luận: [${selectedVerdict}]. Đang chuyển sang duyệt...` : (currentAppLang === 'zh' ? `现场报告及 ${dynamicDefects.length} 张缺陷图已存入本地 IndexedDB！判定: [${selectedVerdict}]. 正在跳转至审核页...` : `Field report and ${dynamicDefects.length} defect photos saved to IndexedDB! Verdict: [${selectedVerdict}]. Redirecting to review...`), 'success');
+      const realDefCount = dynamicDefects.filter(d => d.dataUrl && !d.dataUrl.includes('<svg') && !d.dataUrl.startsWith('data:image/svg')).length;
+      showAlert(currentAppLang === 'vi' ? `Báo cáo thực địa và ${realDefCount} ảnh lỗi thực tế đã lưu thành công vào IndexedDB! Kết luận: [${selectedVerdict}]. Đang chuyển sang duyệt...` : `Field report and ${realDefCount} real defect photos saved to IndexedDB! Verdict: [${selectedVerdict}]. Redirecting...`, 'success');
       setTimeout(() => switchTab('reportReviewTab'), 1200);
     }
 
@@ -6342,11 +6465,15 @@
             item.dataUrl = annotatedData;
             syncDynamicDefectsToReport();
           }
-        } else {
-          // Sync to report photo 1..7
-          const num = currentTargetImgId.replace('img_p', '');
-          const repImg = document.getElementById(`repPhoto${num}`);
-          if (repImg) repImg.src = annotatedData;
+        } else if (currentTargetImgId.startsWith('img_p')) {
+          const key = currentTargetImgId.replace('img_', '');
+          realOverviewPhotos[key] = annotatedData;
+          const badgeEl = document.getElementById('badge_' + key);
+          if (badgeEl) {
+            badgeEl.textContent = '✓ Ảnh Thực Tế';
+            badgeEl.className = 'badge badge-pass';
+          }
+          syncOverviewPhotosToReport();
         }
       }
       closeAnnotatorModal();
@@ -6598,8 +6725,13 @@
 
       if (!repGrid) return;
 
-      const total = dynamicDefects.length;
-      if (repBadge) repBadge.textContent = `${total} Ảnh Lỗi Chi Tiết`;
+      // Filter out any mock / demo SVGs - ONLY REAL PHOTOS
+      const realDefects = dynamicDefects.filter(def => {
+        return def.dataUrl && typeof def.dataUrl === 'string' && !def.dataUrl.includes('<svg') && !def.dataUrl.startsWith('data:image/svg');
+      });
+
+      const total = realDefects.length;
+      if (repBadge) repBadge.textContent = `${total} Ảnh Lỗi Chi Tiết Thực Tế`;
 
       if (total === 0) {
         repGrid.innerHTML = '';
@@ -6609,14 +6741,14 @@
 
       if (repEmpty) repEmpty.style.display = 'none';
 
-      repGrid.innerHTML = dynamicDefects.map((def, idx) => {
+      repGrid.innerHTML = realDefects.map((def, idx) => {
         const sevColor = def.severity === 'CRITICAL' ? 'var(--color-critical)' : (def.severity === 'MAJOR' ? 'var(--color-major)' : '#ca8a04');
         const sevBg = def.severity === 'CRITICAL' ? '#fee2e2' : (def.severity === 'MAJOR' ? '#fef3c7' : '#fef9c3');
         const sevText = def.severity === 'CRITICAL' ? '#991b1b' : (def.severity === 'MAJOR' ? '#92400e' : '#854d0e');
 
         return `
           <div class="a4-photo-item" style="border:1px solid ${sevColor}; background:#ffffff;">
-            <div style="background:#1e293b; height:150px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            <div style="background:#1e293b; height:140px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
               <img src="${def.dataUrl}" style="max-height:100%; max-width:100%; object-fit:contain;" alt="Defect #${idx + 1}">
             </div>
             <div class="a4-photo-desc" style="padding:6px 8px; font-size:0.75rem; line-height:1.3;">
@@ -6633,22 +6765,7 @@
     }
 
     function loadSampleDefectPhotos() {
-      const sample1 = SVG_STORE.svgFinishedGarment || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23f1f5f9" width="400" height="300"/><circle cx="180" cy="140" r="45" fill="none" stroke="%23dc2626" stroke-width="6"/><text x="180" y="220" font-family="Arial" font-size="14" fill="%23dc2626" font-weight="bold" text-anchor="middle">Bục chỉ nách áo (1.5cm)</text></svg>';
-      const sample2 = SVG_STORE.svgCareLabel || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23f1f5f9" width="400" height="300"/><circle cx="210" cy="120" r="35" fill="none" stroke="%23dc2626" stroke-width="6"/><text x="210" y="190" font-family="Arial" font-size="14" fill="%23dc2626" font-weight="bold" text-anchor="middle">Vết dầu máy 0.8cm</text></svg>';
-
-      createDefectItem(sample1, {
-        severity: 'MAJOR',
-        defectType: 'Bục chỉ / Đứt chỉ (Broken seam)',
-        note: 'Nách trái bục đường may 1.5cm'
-      });
-
-      createDefectItem(sample2, {
-        severity: 'MINOR',
-        defectType: 'Vết dầu / Dơ bẩn (Oil/Dirt stain)',
-        note: 'Ngực áo có vết dầu tròn 0.8cm'
-      });
-
-      showAlert('Đã nạp 2 ảnh lỗi mẫu demo! Bạn có thể bấm [✏️ Khoanh Lỗi] để vẽ hoặc bấm [➕ Chụp Thêm Ảnh Lỗi Mới].', 'info');
+      showAlert('Vui lòng chụp ảnh lỗi thực tế từ camera để đảm bảo tính chuyên nghiệp của báo cáo nghiệm thu!', 'info');
     }
 
     function setSealView(name) {
@@ -6769,6 +6886,7 @@
       }
       if (tabId === 'reportReviewTab') {
         const b = document.getElementById('navTab4'); if (b) b.classList.add('active');
+        syncOverviewPhotosToReport();
         syncDynamicDefectsToReport();
       }
       if (tabId === 'recapTab') {
@@ -6883,14 +7001,7 @@
       document.getElementById('img_p6').src = SVG_STORE.svgPriceTag;
       document.getElementById('img_p7').src = SVG_STORE.svgPackaging;
 
-      document.getElementById('repPhoto1').src = SVG_STORE.svgColorSwatches;
-      document.getElementById('repPhoto2').src = SVG_STORE.svgSealSample;
-      document.getElementById('repPhoto3').src = SVG_STORE.svgFinishedGarment;
-      document.getElementById('repPhoto4').src = SVG_STORE.svgCareLabel;
-      if (document.getElementById('repPhoto5')) document.getElementById('repPhoto5').src = SVG_STORE.svgHangtag;
-      if (document.getElementById('repPhoto6')) document.getElementById('repPhoto6').src = SVG_STORE.svgPriceTag;
-      if (document.getElementById('repPhoto7')) document.getElementById('repPhoto7').src = SVG_STORE.svgPackaging;
-
+      syncOverviewPhotosToReport();
       renderDynamicDefectGrid();
       syncDynamicDefectsToReport();
 
