@@ -2562,18 +2562,19 @@
             </div>
 
             <!-- 3. Finished Garment -->
-            <div class="photo-card">
+            <div class="photo-card" style="border: 2px solid var(--color-teal); background:#f0fdfa;">
               <div class="photo-card-title">
-                <span id="pTitle3">3. Sản Phẩm Hoàn Thiện</span>
+                <span id="pTitle3">3. Sản Phẩm Hoàn Thiện (Ảnh Tổng Quan)</span>
                 <span class="badge badge-pass">&#10003; Đã Kiểm</span>
               </div>
               <div class="photo-preview-slot">
                 <img id="img_p3" src="" onerror="handleImgFallback(this, 'svgFinishedGarment')">
               </div>
               <input type="file" id="file_p3" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoUpload(this, 'img_p3', 'repPhoto3')">
-              <div class="photo-btn-row">
-                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('file_p3').click()">&#128247; Chụp / Tải Ảnh</button>
+              <div class="photo-btn-row" style="flex-wrap:wrap;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('file_p3').click()">&#128247; Chụp Ảnh Tổng Quan</button>
                 <button type="button" class="btn btn-outline btn-sm" onclick="openAnnotator('img_p3')">&#9998; Khoanh Lỗi</button>
+                <button type="button" class="btn btn-navy btn-sm" onclick="triggerAddNewDefectPhoto()" style="font-weight:700;" title="Bổ sung thêm ảnh cận cảnh từng lỗi may phát hiện">➕ Chụp Thêm N Ảnh Lỗi</button>
               </div>
             </div>
 
@@ -2638,6 +2639,61 @@
               <div class="photo-btn-row">
                 <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('file_p7').click()">&#128247; Chụp / Tải Ảnh</button>
                 <button type="button" class="btn btn-outline btn-sm" onclick="openAnnotator('img_p7')">&#9998; Khoanh Lỗi</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ======================================================================
+               BỘ SƯU TẬP ẢNH LỖI SẢN PHẨM CHI TIẾT (DYNAMIC DEFECT GALLERY - N LỖI)
+               ====================================================================== -->
+          <div class="card" style="margin-top:16px; border-left:5px solid var(--color-critical); background:#ffffff;">
+            <div class="card-header" style="flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.4rem;">📸</span>
+                <div>
+                  <div class="card-title" style="font-size:1rem; margin-bottom:2px;">
+                    Bộ Sưu Tập Ảnh Lỗi Sản Phẩm (Defect Evidence Gallery - N Lỗi)
+                  </div>
+                  <small style="color:var(--color-grey); font-size:0.78rem;">
+                    Chụp cận cảnh từng lỗi may, khoanh tròn đỏ/mũi tên, phân loại Critical/Major/Minor không giới hạn số lượng ảnh
+                  </small>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                <span id="badgeDefectCount" class="badge" style="background:#eff6ff; color:#1d4ed8; font-weight:700; font-size:0.85rem;">0 ảnh lỗi</span>
+                <button type="button" class="btn btn-teal btn-sm" onclick="triggerAddNewDefectPhoto()" style="font-weight:700;">
+                  ➕ Chụp Thêm Ảnh Lỗi Mới
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="loadSampleDefectPhotos()" style="font-size:0.75rem;" title="Nạp nhanh ảnh lỗi mẫu để xem demo">
+                  ↻ Mẫu Lỗi Demo
+                </button>
+              </div>
+            </div>
+
+            <!-- Input ẩn kích hoạt trực tiếp camera máy ảnh điện thoại cho ảnh mới -->
+            <input type="file" id="dynamicDefectFileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleDynamicDefectFileSelected(this)">
+            <!-- Input ẩn kích hoạt đổi ảnh cho 1 card cụ thể -->
+            <input type="file" id="dynamicDefectReuploadInput" accept="image/*" capture="environment" style="display:none;" onchange="handleDynamicDefectReupload(this)">
+
+            <!-- Tóm tắt số lượng lỗi theo phân loại -->
+            <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; font-size:0.8rem; align-items:center;">
+              <span style="color:var(--color-grey); font-weight:600;">Tổng hợp lỗi đã chụp:</span>
+              <span style="padding:3px 8px; border-radius:6px; background:#fee2e2; color:#991b1b; font-weight:700;">Critical: <span id="defSumCri">0</span></span>
+              <span style="padding:3px 8px; border-radius:6px; background:#fef3c7; color:#92400e; font-weight:700;">Major: <span id="defSumMaj">0</span></span>
+              <span style="padding:3px 8px; border-radius:6px; background:#fef9c3; color:#854d0e; font-weight:700;">Minor: <span id="defSumMin">0</span></span>
+            </div>
+
+            <!-- Lưới hiển thị danh sách N ảnh lỗi động -->
+            <div id="dynamicDefectGrid" class="photos-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px; margin-bottom:0;">
+              <!-- Dynamic Defect Cards Rendered Here -->
+            </div>
+
+            <!-- Khung placeholder khi chưa có ảnh lỗi -->
+            <div id="emptyDefectState" style="text-align:center; padding:24px 12px; background:#f8fafc; border:2px dashed #cbd5e1; border-radius:8px; margin-top:8px;">
+              <div style="font-size:2rem; margin-bottom:4px;">🔍</div>
+              <div style="font-weight:700; color:#334155; font-size:0.9rem;">Chưa có ảnh lỗi chi tiết nào</div>
+              <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                Mỗi khi phát hiện 1 lỗi trên sản phẩm, bấm nút <strong>[➕ Chụp Thêm Ảnh Lỗi Mới]</strong> bên trên để chụp cận cảnh, khoanh vùng bút đỏ và tự động ghi vào biên bản.
               </div>
             </div>
           </div>
@@ -2898,7 +2954,7 @@
               <div class="a4-photo-item">
                 <img id="repPhoto3" src="" onerror="handleImgFallback(this, 'svgFinishedGarment')">
                 <div class="a4-photo-desc">
-                  <strong id="repPhotoDesc3">3. Sản Phẩm Hoàn Thiện</strong>
+                  <strong id="repPhotoDesc3">3. Sản Phẩm Hoàn Thiện (Tổng Quan)</strong>
                   <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive3">[Xem ảnh gốc Drive]</a>
                 </div>
               </div>
@@ -2908,6 +2964,41 @@
                   <strong id="repPhotoDesc4">4. Nhãn Mác (Care/Main)</strong>
                   <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive4">[Xem ảnh gốc Drive]</a>
                 </div>
+              </div>
+              <div class="a4-photo-item">
+                <img id="repPhoto5" src="" onerror="handleImgFallback(this, 'svgHangtag')">
+                <div class="a4-photo-desc">
+                  <strong id="repPhotoDesc5">5. Thẻ Bài (Hangtag)</strong>
+                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive5">[Xem ảnh gốc Drive]</a>
+                </div>
+              </div>
+              <div class="a4-photo-item">
+                <img id="repPhoto6" src="" onerror="handleImgFallback(this, 'svgPriceTag')">
+                <div class="a4-photo-desc">
+                  <strong id="repPhotoDesc6">6. Thẻ Giá (Price Tag)</strong>
+                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive6">[Xem ảnh gốc Drive]</a>
+                </div>
+              </div>
+              <div class="a4-photo-item">
+                <img id="repPhoto7" src="" onerror="handleImgFallback(this, 'svgPackaging')">
+                <div class="a4-photo-desc">
+                  <strong id="repPhotoDesc7">7. Thùng Đóng Gói (Carton)</strong>
+                  <a href="https://drive.google.com/drive/folders/1juimSNFRgjnwFar67ZGV1XzuT_pBEXdT?usp=drive_link" target="_blank" class="drive-link" id="linkDrive7">[Xem ảnh gốc Drive]</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- MỤC 3.2: DANH MỤC ẢNH LỖI CẬN CẢNH (DEFECT EVIDENCE CLOSE-UP - N LỖI) -->
+            <div style="margin-top: 14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+                <strong style="color:var(--color-navy); font-size:0.88rem;">3.2. Danh Mục Bằng Chứng Ảnh Lỗi Chi Tiết (Defect Evidence Gallery - N Lỗi)</strong>
+                <span id="repDefectCountBadge" class="badge" style="background:#fee2e2; color:#b91c1c; font-weight:700;">0 Lỗi Đã Ghi Nhận</span>
+              </div>
+              <div id="reportDefectGrid" class="a4-photo-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                <!-- Dynamic Defect Photos Rendered into Report -->
+              </div>
+              <div id="emptyReportDefectState" style="text-align:center; padding:12px; background:#f9fafb; border:1px dashed #d1d5db; border-radius:6px; font-size:0.8rem; color:#6b7280;">
+                Không phát hiện lỗi ngoại quan cần lưu ảnh cận cảnh (Hoặc chưa chụp ảnh lỗi chi tiết).
               </div>
             </div>
           </div>
@@ -5995,7 +6086,8 @@
     }
 
     function submitFieldInspection() {
-      showAlert(currentAppLang === 'vi' ? `Báo cáo thực địa đã lưu thành công vào IndexedDB! Kết luận: [${selectedVerdict}]. Đang chuyển sang duyệt...` : (currentAppLang === 'zh' ? `现场报告已存入本地 IndexedDB！判定: [${selectedVerdict}]. 正在跳转至审核页...` : `Field report saved to IndexedDB! Verdict: [${selectedVerdict}]. Redirecting to review...`), 'success');
+      syncDynamicDefectsToReport();
+      showAlert(currentAppLang === 'vi' ? `Báo cáo thực địa và ${dynamicDefects.length} ảnh lỗi đã lưu thành công vào IndexedDB! Kết luận: [${selectedVerdict}]. Đang chuyển sang duyệt...` : (currentAppLang === 'zh' ? `现场报告及 ${dynamicDefects.length} 张缺陷图已存入本地 IndexedDB！判定: [${selectedVerdict}]. 正在跳转至审核页...` : `Field report and ${dynamicDefects.length} defect photos saved to IndexedDB! Verdict: [${selectedVerdict}]. Redirecting to review...`), 'success');
       setTimeout(() => switchTab('reportReviewTab'), 1200);
     }
 
@@ -6241,13 +6333,322 @@
         const annotatedData = canvas.toDataURL('image/jpeg', 0.95);
         const targetImg = document.getElementById(currentTargetImgId);
         if (targetImg) targetImg.src = annotatedData;
-        // Sync to report photo
-        const num = currentTargetImgId.replace('img_p', '');
-        const repImg = document.getElementById(`repPhoto${num}`);
-        if (repImg) repImg.src = annotatedData;
+
+        // Sync for dynamic defect photos
+        if (currentTargetImgId.startsWith('img_def_')) {
+          const defId = currentTargetImgId.replace('img_', '');
+          const item = dynamicDefects.find(d => d.id === defId);
+          if (item) {
+            item.dataUrl = annotatedData;
+            syncDynamicDefectsToReport();
+          }
+        } else {
+          // Sync to report photo 1..7
+          const num = currentTargetImgId.replace('img_p', '');
+          const repImg = document.getElementById(`repPhoto${num}`);
+          if (repImg) repImg.src = annotatedData;
+        }
       }
       closeAnnotatorModal();
       showAlert(currentAppLang === 'vi' ? '🎉 Đã lưu ảnh khoanh vùng lỗi vào hồ sơ nghiệm thu!' : (currentAppLang === 'zh' ? '已成功保存标注缺陷图片！' : 'Successfully saved annotated defect image!'), 'success');
+    }
+
+    // =========================================================================
+    // DYNAMIC DEFECT PHOTOS ENGINE (N PHOTOS / DEFECT EVIDENCE GALLERY)
+    // =========================================================================
+    let dynamicDefects = [];
+    let activeReuploadDefectId = null;
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+
+    function triggerAddNewDefectPhoto() {
+      const fileInput = document.getElementById('dynamicDefectFileInput');
+      if (fileInput) {
+        fileInput.value = '';
+        fileInput.click();
+      }
+    }
+
+    function handleDynamicDefectFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          createDefectItem(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function triggerReuploadDefectPhoto(id) {
+      activeReuploadDefectId = id;
+      const reInput = document.getElementById('dynamicDefectReuploadInput');
+      if (reInput) {
+        reInput.value = '';
+        reInput.click();
+      }
+    }
+
+    function handleDynamicDefectReupload(input) {
+      if (input.files && input.files[0] && activeReuploadDefectId) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const item = dynamicDefects.find(d => d.id === activeReuploadDefectId);
+          if (item) {
+            item.dataUrl = e.target.result;
+            const imgEl = document.getElementById(`img_${activeReuploadDefectId}`);
+            if (imgEl) imgEl.src = item.dataUrl;
+            syncDynamicDefectsToReport();
+            showAlert('Đã đổi ảnh lỗi thành công! Bấm [✏️ Khoanh Lỗi] để vẽ lại.', 'success');
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function createDefectItem(dataUrl, initialData = {}) {
+      const defId = 'def_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const newDefect = {
+        id: defId,
+        dataUrl: dataUrl,
+        severity: initialData.severity || 'MAJOR',
+        defectType: initialData.defectType || 'Bục chỉ / Đứt chỉ (Broken seam)',
+        note: initialData.note || '',
+        timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      dynamicDefects.push(newDefect);
+      renderDynamicDefectGrid();
+      syncDynamicDefectsToReport();
+
+      if (!initialData.skipAqlIncrement) {
+        autoIncrementAqlCounter(newDefect.severity);
+      }
+
+      showAlert(`📸 Đã thêm ảnh lỗi #${dynamicDefects.length}! Bấm [✏️ Khoanh Lỗi] để vẽ vòng tròn đỏ/mũi tên.`, 'success');
+
+      setTimeout(() => {
+        const el = document.getElementById(`card_${defId}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+    }
+
+    function autoIncrementAqlCounter(severity) {
+      if (severity === 'CRITICAL') updateDefectCount('cri', 1);
+      else if (severity === 'MAJOR') updateDefectCount('maj', 1);
+      else if (severity === 'MINOR') updateDefectCount('min', 1);
+    }
+
+    function removeDefectItem(id) {
+      if (!confirm('Bạn có chắc muốn xóa ảnh lỗi này khỏi hồ sơ kiểm định?')) return;
+      const idx = dynamicDefects.findIndex(d => d.id === id);
+      if (idx !== -1) {
+        const removed = dynamicDefects.splice(idx, 1)[0];
+        if (removed.severity === 'CRITICAL') updateDefectCount('cri', -1);
+        else if (removed.severity === 'MAJOR') updateDefectCount('maj', -1);
+        else if (removed.severity === 'MINOR') updateDefectCount('min', -1);
+
+        renderDynamicDefectGrid();
+        syncDynamicDefectsToReport();
+        showAlert('Đã xóa ảnh lỗi thành công!', 'info');
+      }
+    }
+
+    function updateDefectSeverity(id, newSev) {
+      const item = dynamicDefects.find(d => d.id === id);
+      if (item) {
+        const oldSev = item.severity;
+        item.severity = newSev;
+        if (oldSev === 'CRITICAL') updateDefectCount('cri', -1);
+        else if (oldSev === 'MAJOR') updateDefectCount('maj', -1);
+        else if (oldSev === 'MINOR') updateDefectCount('min', -1);
+
+        if (newSev === 'CRITICAL') updateDefectCount('cri', 1);
+        else if (newSev === 'MAJOR') updateDefectCount('maj', 1);
+        else if (newSev === 'MINOR') updateDefectCount('min', 1);
+
+        renderDynamicDefectGrid();
+        syncDynamicDefectsToReport();
+      }
+    }
+
+    function updateDefectType(id, newType) {
+      const item = dynamicDefects.find(d => d.id === id);
+      if (item) {
+        item.defectType = newType;
+        syncDynamicDefectsToReport();
+      }
+    }
+
+    function updateDefectNote(id, newNote) {
+      const item = dynamicDefects.find(d => d.id === id);
+      if (item) {
+        item.note = newNote;
+        syncDynamicDefectsToReport();
+      }
+    }
+
+    function renderDynamicDefectGrid() {
+      const grid = document.getElementById('dynamicDefectGrid');
+      const emptyState = document.getElementById('emptyDefectState');
+      const countBadge = document.getElementById('badgeDefectCount');
+      const sumCri = document.getElementById('defSumCri');
+      const sumMaj = document.getElementById('defSumMaj');
+      const sumMin = document.getElementById('defSumMin');
+
+      if (!grid) return;
+
+      const total = dynamicDefects.length;
+      if (countBadge) countBadge.textContent = `${total} ảnh lỗi`;
+
+      let cCri = 0, cMaj = 0, cMin = 0;
+      dynamicDefects.forEach(d => {
+        if (d.severity === 'CRITICAL') cCri++;
+        else if (d.severity === 'MAJOR') cMaj++;
+        else if (d.severity === 'MINOR') cMin++;
+      });
+
+      if (sumCri) sumCri.textContent = cCri;
+      if (sumMaj) sumMaj.textContent = cMaj;
+      if (sumMin) sumMin.textContent = cMin;
+
+      if (total === 0) {
+        grid.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = 'none';
+
+      grid.innerHTML = dynamicDefects.map((def, idx) => {
+        const sevColor = def.severity === 'CRITICAL' ? 'var(--color-critical)' : (def.severity === 'MAJOR' ? 'var(--color-major)' : '#ca8a04');
+        const sevBg = def.severity === 'CRITICAL' ? '#fee2e2' : (def.severity === 'MAJOR' ? '#fef3c7' : '#fef9c3');
+        const sevText = def.severity === 'CRITICAL' ? '#991b1b' : (def.severity === 'MAJOR' ? '#92400e' : '#854d0e');
+
+        return `
+          <div id="card_${def.id}" class="photo-card" style="border: 2px solid ${sevColor}; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position:relative; background:#ffffff;">
+            <div class="photo-card-title" style="padding-bottom:4px; border-bottom:1px solid #f1f5f9;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <strong style="color:var(--color-navy); font-size:0.85rem;">Lỗi #${idx + 1}</strong>
+                <span class="badge" style="background:${sevBg}; color:${sevText}; font-weight:700; font-size:0.75rem;">${def.severity}</span>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" onclick="removeDefectItem('${def.id}')" style="padding:2px 6px; font-size:0.72rem; color:#ef4444; border-color:#fca5a5;" title="Xóa ảnh lỗi này">
+                🗑️ Xóa
+              </button>
+            </div>
+
+            <div class="photo-preview-slot" style="height:190px;">
+              <img id="img_${def.id}" src="${def.dataUrl}" alt="Defect Photo #${idx + 1}" style="object-fit:contain; background:#1e293b;">
+            </div>
+
+            <div class="photo-btn-row">
+              <button type="button" class="btn btn-outline btn-sm" onclick="triggerReuploadDefectPhoto('${def.id}')" style="font-size:0.75rem;">
+                📷 Đổi Ảnh
+              </button>
+              <button type="button" class="btn btn-navy btn-sm" onclick="openAnnotator('img_${def.id}')" style="font-size:0.75rem; font-weight:700;">
+                ✏️ Khoanh Lỗi
+              </button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+              <div style="display:grid; grid-template-columns:1fr 1.6fr; gap:6px;">
+                <div>
+                  <label style="font-size:0.7rem; font-weight:700; color:#475569;">Mức độ lỗi:</label>
+                  <select class="cell-input" style="font-size:0.75rem; padding:4px 6px; font-weight:700;" onchange="updateDefectSeverity('${def.id}', this.value)">
+                    <option value="CRITICAL" ${def.severity === 'CRITICAL' ? 'selected' : ''}>Critical (Nguy hiểm)</option>
+                    <option value="MAJOR" ${def.severity === 'MAJOR' ? 'selected' : ''}>Major (Lỗi nặng)</option>
+                    <option value="MINOR" ${def.severity === 'MINOR' ? 'selected' : ''}>Minor (Lỗi nhẹ)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:0.7rem; font-weight:700; color:#475569;">Loại lỗi phổ biến:</label>
+                  <select class="cell-input" style="font-size:0.75rem; padding:4px 6px;" onchange="updateDefectType('${def.id}', this.value)">
+                    <option value="Bục chỉ / Đứt chỉ (Broken seam)" ${def.defectType.includes('Bục chỉ') ? 'selected' : ''}>Bục chỉ / Đứt chỉ</option>
+                    <option value="Vết dầu / Dơ bẩn (Oil/Dirt stain)" ${def.defectType.includes('Vết dầu') ? 'selected' : ''}>Vết dầu / Dơ bẩn</option>
+                    <option value="Xước sợi / Rách / Thủng vải (Fabric snag/hole)" ${def.defectType.includes('Xước sợi') ? 'selected' : ''}>Xước sợi / Thủng vải</option>
+                    <option value="Lệch màu / Bóng râm (Color shading)" ${def.defectType.includes('Lệch màu') ? 'selected' : ''}>Lệch màu / Bóng râm</option>
+                    <option value="Nhăn vặn / Sóng vải (Puckering/Twist)" ${def.defectType.includes('Nhăn vặn') ? 'selected' : ''}>Nhăn vặn / Sóng vải</option>
+                    <option value="Đầu chỉ thừa > 1.5cm (Untrimmed thread)" ${def.defectType.includes('Đầu chỉ thừa') ? 'selected' : ''}>Đầu chỉ thừa</option>
+                    <option value="Sai thông số POMs (Out of tolerance)" ${def.defectType.includes('Sai thông số') ? 'selected' : ''}>Sai thông số POMs</option>
+                    <option value="Lỗi nhãn mác / Sai vị trí (Label defect)" ${def.defectType.includes('nhãn mác') ? 'selected' : ''}>Lỗi nhãn mác</option>
+                    <option value="Khác (Other defect)" ${def.defectType.includes('Khác') ? 'selected' : ''}>Khác (Ghi chú dưới)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.7rem; font-weight:700; color:#475569;">Vị trí & Ghi chú chi tiết:</label>
+                <input type="text" class="cell-input" style="font-size:0.75rem; padding:4px 8px;" placeholder="VD: Thân trước nách trái bục 1.5cm..." value="${escapeHtml(def.note)}" oninput="updateDefectNote('${def.id}', this.value)">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function syncDynamicDefectsToReport() {
+      const repGrid = document.getElementById('reportDefectGrid');
+      const repBadge = document.getElementById('repDefectCountBadge');
+      const repEmpty = document.getElementById('emptyReportDefectState');
+
+      if (!repGrid) return;
+
+      const total = dynamicDefects.length;
+      if (repBadge) repBadge.textContent = `${total} Ảnh Lỗi Chi Tiết`;
+
+      if (total === 0) {
+        repGrid.innerHTML = '';
+        if (repEmpty) repEmpty.style.display = 'block';
+        return;
+      }
+
+      if (repEmpty) repEmpty.style.display = 'none';
+
+      repGrid.innerHTML = dynamicDefects.map((def, idx) => {
+        const sevColor = def.severity === 'CRITICAL' ? 'var(--color-critical)' : (def.severity === 'MAJOR' ? 'var(--color-major)' : '#ca8a04');
+        const sevBg = def.severity === 'CRITICAL' ? '#fee2e2' : (def.severity === 'MAJOR' ? '#fef3c7' : '#fef9c3');
+        const sevText = def.severity === 'CRITICAL' ? '#991b1b' : (def.severity === 'MAJOR' ? '#92400e' : '#854d0e');
+
+        return `
+          <div class="a4-photo-item" style="border:1px solid ${sevColor}; background:#ffffff;">
+            <div style="background:#1e293b; height:150px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+              <img src="${def.dataUrl}" style="max-height:100%; max-width:100%; object-fit:contain;" alt="Defect #${idx + 1}">
+            </div>
+            <div class="a4-photo-desc" style="padding:6px 8px; font-size:0.75rem; line-height:1.3;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                <strong style="color:var(--color-navy);">Lỗi #${idx + 1}</strong>
+                <span class="badge" style="background:${sevBg}; color:${sevText}; font-weight:700; font-size:0.68rem; padding:1px 5px;">${def.severity}</span>
+              </div>
+              <div style="font-weight:600; color:#334155; margin-bottom:2px;">${escapeHtml(def.defectType)}</div>
+              ${def.note ? `<div style="color:#64748b; font-style:italic;">📍 ${escapeHtml(def.note)}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadSampleDefectPhotos() {
+      const sample1 = SVG_STORE.svgFinishedGarment || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23f1f5f9" width="400" height="300"/><circle cx="180" cy="140" r="45" fill="none" stroke="%23dc2626" stroke-width="6"/><text x="180" y="220" font-family="Arial" font-size="14" fill="%23dc2626" font-weight="bold" text-anchor="middle">Bục chỉ nách áo (1.5cm)</text></svg>';
+      const sample2 = SVG_STORE.svgCareLabel || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23f1f5f9" width="400" height="300"/><circle cx="210" cy="120" r="35" fill="none" stroke="%23dc2626" stroke-width="6"/><text x="210" y="190" font-family="Arial" font-size="14" fill="%23dc2626" font-weight="bold" text-anchor="middle">Vết dầu máy 0.8cm</text></svg>';
+
+      createDefectItem(sample1, {
+        severity: 'MAJOR',
+        defectType: 'Bục chỉ / Đứt chỉ (Broken seam)',
+        note: 'Nách trái bục đường may 1.5cm'
+      });
+
+      createDefectItem(sample2, {
+        severity: 'MINOR',
+        defectType: 'Vết dầu / Dơ bẩn (Oil/Dirt stain)',
+        note: 'Ngực áo có vết dầu tròn 0.8cm'
+      });
+
+      showAlert('Đã nạp 2 ảnh lỗi mẫu demo! Bạn có thể bấm [✏️ Khoanh Lỗi] để vẽ hoặc bấm [➕ Chụp Thêm Ảnh Lỗi Mới].', 'info');
     }
 
     function setSealView(name) {
@@ -6362,8 +6763,14 @@
         const b = document.getElementById('navTab2'); if (b) b.classList.add('active');
         renderBookingListTable();
       }
-      if (tabId === 'inspectionWorkspaceTab') { const b = document.getElementById('navTab3'); if (b) b.classList.add('active'); }
-      if (tabId === 'reportReviewTab') { const b = document.getElementById('navTab4'); if (b) b.classList.add('active'); }
+      if (tabId === 'inspectionWorkspaceTab') {
+        const b = document.getElementById('navTab3'); if (b) b.classList.add('active');
+        renderDynamicDefectGrid();
+      }
+      if (tabId === 'reportReviewTab') {
+        const b = document.getElementById('navTab4'); if (b) b.classList.add('active');
+        syncDynamicDefectsToReport();
+      }
       if (tabId === 'recapTab') {
         const b = document.getElementById('navTab5'); if (b) b.classList.add('active');
         renderRecapTable(currentRecapList);
@@ -6480,6 +6887,12 @@
       document.getElementById('repPhoto2').src = SVG_STORE.svgSealSample;
       document.getElementById('repPhoto3').src = SVG_STORE.svgFinishedGarment;
       document.getElementById('repPhoto4').src = SVG_STORE.svgCareLabel;
+      if (document.getElementById('repPhoto5')) document.getElementById('repPhoto5').src = SVG_STORE.svgHangtag;
+      if (document.getElementById('repPhoto6')) document.getElementById('repPhoto6').src = SVG_STORE.svgPriceTag;
+      if (document.getElementById('repPhoto7')) document.getElementById('repPhoto7').src = SVG_STORE.svgPackaging;
+
+      renderDynamicDefectGrid();
+      syncDynamicDefectsToReport();
 
       setAppLanguage(currentAppLang);
       updateSyncBadge();
